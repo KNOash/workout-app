@@ -4,37 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>筋トレ究極記録</title>
+    <title>筋トレ究極カスタム</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #1a1a1a; color: #fff; font-family: sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         h1 { font-size: 18px; color: #f1c40f; margin: 5px 0; }
         .counter { font-size: 14px; color: #2ecc71; margin-bottom: 10px; }
         
-        /* 部位ボタン */
         .body-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
         .muscle-btn { background-color: #333; color: #fff; border: 2px solid #555; border-radius: 10px; padding: 10px; min-height: 70px; cursor: pointer; }
         .muscle-btn.completed { background-color: #e74c3c; border-color: #ff7675; }
         .muscle-name { font-weight: bold; font-size: 16px; }
         .muscle-info { font-size: 11px; opacity: 0.8; }
 
-        /* 入力エリア */
         .input-panel { background: #222; padding: 15px; border-radius: 10px; width: 100%; max-width: 400px; margin-top: 15px; box-sizing: border-box; }
-        .input-row { display: flex; align-items: center; margin-bottom: 8px; justify-content: space-between; }
-        input { width: 60px; padding: 5px; text-align: center; border-radius: 4px; border: none; font-size: 16px; }
-        select { padding: 5px; border-radius: 4px; background: #444; color: white; border: none; }
+        .input-row { display: flex; align-items: center; margin-bottom: 12px; justify-content: space-between; gap: 10px; }
+        
+        /* 種目名の入力欄（カスタム可能） */
+        .menu-name-input { background: #444; color: #fff; border: 1px dashed #777; padding: 5px; border-radius: 4px; flex: 1; font-size: 14px; }
+        .weight-input { width: 70px; padding: 8px; text-align: center; border-radius: 4px; border: none; font-size: 18px; font-weight: bold; }
 
-        /* ボタン */
-        .action-btn { width: 100%; max-width: 400px; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .action-btn { width: 100%; max-width: 400px; padding: 15px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; }
         .save-btn { background-color: #27ae60; color: white; }
         .nav-btn { background-color: #3498db; color: white; }
-        .del-btn { background-color: #c0392b; color: white; font-size: 12px; padding: 5px; margin-left: 10px; }
+        .del-btn { background-color: #c0392b; color: white; font-size: 12px; padding: 5px; margin-left: 10px; border-radius: 4px; }
 
-        /* 画面切り替え */
         .screen { display: none; width: 100%; max-width: 400px; }
         .active { display: flex; flex-direction: column; }
-        .history-item { background: #333; margin: 5px 0; padding: 10px; border-radius: 5px; font-size: 13px; }
+        .history-item { background: #333; margin: 8px 0; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; border-left: 4px solid #f1c40f; }
         canvas { background: #fff; border-radius: 10px; margin-top: 10px; }
+        .hint { font-size: 10px; color: #999; text-align: center; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -44,22 +43,23 @@
         <div id="total-count" class="counter">全種コンプリート回数: 0回</div>
         
         <div class="body-container">
-            <button class="muscle-btn" id="btn-chest" onclick="selectPart('chest')"><div class="muscle-name">胸</div><div class="muscle-info" id="info-chest">-</div></button>
-            <button class="muscle-btn" id="btn-back" onclick="selectPart('back')"><div class="muscle-name">背中</div><div class="muscle-info" id="info-back">-</div></button>
-            <button class="muscle-btn" id="btn-shoulder" onclick="selectPart('shoulder')"><div class="muscle-name">肩</div><div class="muscle-info" id="info-shoulder">-</div></button>
-            <button class="muscle-btn" id="btn-arm" onclick="selectPart('arm')"><div class="muscle-name">腕</div><div class="muscle-info" id="info-arm">-</div></button>
-            <button class="muscle-btn" id="btn-leg" onclick="selectPart('leg')"><div class="muscle-name">脚</div><div class="muscle-info" id="info-leg">-</div></button>
+            <button class="muscle-btn" id="btn-chest" onclick="selectPart('胸')"><div class="muscle-name">胸</div><div class="muscle-info" id="info-胸">-</div></button>
+            <button class="muscle-btn" id="btn-back" onclick="selectPart('背中')"><div class="muscle-name">背中</div><div class="muscle-info" id="info-背中">-</div></button>
+            <button class="muscle-btn" id="btn-shoulder" onclick="selectPart('肩')"><div class="muscle-name">肩</div><div class="muscle-info" id="info-肩">-</div></button>
+            <button class="muscle-btn" id="btn-arm" onclick="selectPart('腕')"><div class="muscle-name">腕</div><div class="muscle-info" id="info-腕">-</div></button>
+            <button class="muscle-btn" id="btn-leg" onclick="selectPart('脚')"><div class="muscle-name">脚</div><div class="muscle-info" id="info-脚">-</div></button>
         </div>
 
         <div class="input-panel">
-            <div id="selected-part-label" style="color:#f1c40f; font-weight:bold; margin-bottom:10px;">部位を選択してください</div>
+            <div id="selected-part-label" style="color:#f1c40f; font-weight:bold; margin-bottom:5px;">部位を選択してください</div>
+            <div class="hint">※種目名をタップして変更できます</div>
             <div class="input-row">
-                <span id="menu1-name">種目1</span>
-                <input type="number" id="weight1" value="0"> kg
+                <input type="text" id="menu1-name" class="menu-name-input" placeholder="種目1" onchange="saveConfig()">
+                <input type="number" id="weight1" class="weight-input" value="0"> kg
             </div>
             <div class="input-row">
-                <span id="menu2-name">種目2</span>
-                <input type="number" id="weight2" value="0"> kg
+                <input type="text" id="menu2-name" class="menu-name-input" placeholder="種目2" onchange="saveConfig()">
+                <input type="number" id="weight2" class="weight-input" value="0"> kg
             </div>
             <button class="action-btn save-btn" onclick="recordWorkout()">この部位を記録して保存</button>
         </div>
@@ -69,70 +69,76 @@
 
     <div id="history-screen" class="screen">
         <h1>履歴と最高重量グラフ</h1>
-        <select id="graph-select" onchange="updateChart()" style="width:100%; margin-bottom:10px;">
-            <option value="chest_1">胸: 種目1</option>
-            <option value="chest_2">胸: 種目2</option>
-            <option value="back_1">背中: 種目1</option>
-            <option value="back_2">背中: 種目2</option>
-            </select>
+        <select id="graph-select" onchange="updateChart()" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; background:#444; color:#fff; border:none;"></select>
         <canvas id="weightChart" width="400" height="300"></canvas>
-        
         <div id="history-list" style="margin-top:20px;"></div>
         <button class="action-btn nav-btn" style="background:#95a5a6" onclick="showScreen('main-screen')">戻る</button>
     </div>
 
     <script>
-        // 設定
-        const config = {
-            chest: ["ベンチプレス", "ダンベルフライ"],
-            back: ["デッドリフト", "ラットプルダウン"],
-            shoulder: ["サイドレイズ", "ショルダープレス"],
-            arm: ["アームカール", "プレスダウン"],
-            leg: ["スクワット", "レッグプレス"]
+        // デフォルト設定
+        const defaultMenus = {
+            胸: ["ベンチプレス", "フライ"],
+            背中: ["デッドリフト", "ラットプル"],
+            肩: ["サイドレイズ", "プレス"],
+            腕: ["カール", "ダウン"],
+            脚: ["スクワット", "プレス"]
         };
 
         let currentPart = null;
-        let userData = JSON.parse(localStorage.getItem('workout_v3') || '{"history":[], "status":{}, "compCount":0}');
+        // データの統合
+        let userData = JSON.parse(localStorage.getItem('workout_v4') || JSON.stringify({
+            history: [], 
+            status: {}, 
+            compCount: 0, 
+            config: defaultMenus
+        }));
 
-        // 初期表示
         updateUI();
 
         function selectPart(part) {
             currentPart = part;
             document.getElementById('selected-part-label').innerText = `【${part}】のトレーニング`;
-            document.getElementById('menu1-name').innerText = config[part][0];
-            document.getElementById('menu2-name').innerText = config[part][1];
-            // 前回の数値を表示
+            document.getElementById('menu1-name').value = userData.config[part][0];
+            document.getElementById('menu2-name').value = userData.config[part][1];
             document.getElementById('weight1').value = userData.status[part]?.w1 || 0;
             document.getElementById('weight2').value = userData.status[part]?.w2 || 0;
+        }
+
+        // 種目名の変更を保存
+        function saveConfig() {
+            if(!currentPart) return;
+            userData.config[currentPart][0] = document.getElementById('menu1-name').value;
+            userData.config[currentPart][1] = document.getElementById('menu2-name').value;
+            save();
         }
 
         function recordWorkout() {
             if(!currentPart) return alert("部位を選んでください");
             
+            const m1 = document.getElementById('menu1-name').value;
+            const m2 = document.getElementById('menu2-name').value;
             const w1 = parseFloat(document.getElementById('weight1').value);
             const w2 = parseFloat(document.getElementById('weight2').value);
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const dateStr = new Date().toLocaleDateString('ja-JP');
 
-            // 履歴に追加
             userData.history.push({
                 id: Date.now(),
                 date: dateStr,
                 part: currentPart,
-                w1: w1,
-                w2: w2
+                m1: m1, w1: w1,
+                m2: m2, w2: w2
             });
 
-            // 現在の状態を更新（色は消さない）
             userData.status[currentPart] = { completed: true, w1: w1, w2: w2 };
 
             // 全部位チェック
-            const allDone = Object.keys(config).every(p => userData.status[p]?.completed);
+            const parts = Object.keys(defaultMenus);
+            const allDone = parts.every(p => userData.status[p]?.completed);
             if(allDone) {
                 userData.compCount++;
-                alert("全コンプリート！リセットします。");
-                Object.keys(config).forEach(p => userData.status[p].completed = false);
+                alert("全コンプリート達成！おめでとうございます！");
+                parts.forEach(p => userData.status[p].completed = false);
             }
 
             save();
@@ -143,23 +149,19 @@
             if(!confirm("この記録を削除しますか？")) return;
             userData.history = userData.history.filter(h => h.id !== id);
             save();
-            showScreen('history-screen'); // 再描画
+            renderHistory();
+            updateChart();
         }
 
-        function save() {
-            localStorage.setItem('workout_v3', JSON.stringify(userData));
-        }
+        function save() { localStorage.setItem('workout_v4', JSON.stringify(userData)); }
 
         function updateUI() {
             document.getElementById('total-count').innerText = `全種コンプリート回数: ${userData.compCount}回`;
-            Object.keys(config).forEach(p => {
+            Object.keys(defaultMenus).forEach(p => {
                 const btn = document.getElementById(`btn-${p}`);
                 const info = document.getElementById(`info-${p}`);
-                if(userData.status[p]?.completed) {
-                    btn.classList.add('completed');
-                } else {
-                    btn.classList.remove('completed');
-                }
+                if(userData.status[p]?.completed) btn.classList.add('completed');
+                else btn.classList.remove('completed');
                 info.innerText = userData.status[p] ? `${userData.status[p].w1}/${userData.status[p].w2}kg` : "-";
             });
         }
@@ -168,9 +170,19 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             if(id === 'history-screen') {
+                updateGraphList();
                 renderHistory();
                 updateChart();
             }
+        }
+
+        function updateGraphList() {
+            const select = document.getElementById('graph-select');
+            select.innerHTML = "";
+            Object.keys(userData.config).forEach(p => {
+                select.innerHTML += `<option value="${p}_1">${p}: ${userData.config[p][0]}</option>`;
+                select.innerHTML += `<option value="${p}_2">${p}: ${userData.config[p][1]}</option>`;
+            });
         }
 
         function renderHistory() {
@@ -180,24 +192,26 @@
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.innerHTML = `
-                    ${h.date} - ${h.part} 
-                    (${config[h.part][0]}:${h.w1}kg / ${config[h.part][1]}:${h.w2}kg)
+                    <strong>${h.date} - ${h.part}</strong><br>
+                    ${h.m1}: ${h.w1}kg / ${h.m2}: ${h.w2}kg
                     <button class="del-btn" onclick="deleteHistory(${h.id})">削除</button>
                 `;
                 list.appendChild(item);
             });
         }
 
-        // グラフ機能
         let myChart = null;
         function updateChart() {
             const select = document.getElementById('graph-select');
+            if(!select.value) return;
             const [part, menuIdx] = select.value.split('_');
-            const key = menuIdx === '1' ? 'w1' : 'w2';
+            const weightKey = menuIdx === '1' ? 'w1' : 'w2';
+            const nameKey = menuIdx === '1' ? 'm1' : 'm2';
 
-            const filteredHistory = userData.history.filter(h => h.part === part).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = filteredHistory.map(h => h.date);
-            const values = filteredHistory.map(h => h[key]);
+            const filtered = userData.history.filter(h => h.part === part);
+            const labels = filtered.map(h => h.date);
+            const values = filtered.map(h => h[weightKey]);
+            const menuName = userData.config[part][parseInt(menuIdx)-1];
 
             const ctx = document.getElementById('weightChart').getContext('2d');
             if(myChart) myChart.destroy();
@@ -206,25 +220,16 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: `${part} 重量推移 (kg)`,
+                        label: `${menuName} (kg)`,
                         data: values,
                         borderColor: '#3498db',
                         backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                        fill: true,
-                        tension: 0.1
+                        fill: true, tension: 0.1
                     }]
                 },
                 options: { scales: { y: { beginAtZero: true } } }
             });
         }
-
-        // セレクトボックスの動的生成（初回のみ）
-        const graphSelect = document.getElementById('graph-select');
-        graphSelect.innerHTML = "";
-        Object.keys(config).forEach(p => {
-            graphSelect.innerHTML += `<option value="${p}_1">${p}: ${config[p][0]}</option>`;
-            graphSelect.innerHTML += `<option value="${p}_2">${p}: ${config[p][1]}</option>`;
-        });
     </script>
 </body>
 </html>
